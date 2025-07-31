@@ -2,14 +2,16 @@
 #include "Utils.h"
 #include <algorithm>
 #include <iomanip>
+#include <sstream>
 
 int Optimal::simulate(std::ostream& out) {
-    out << std::left << std::setw(7) << "Page" << "|";
+  
+    out << std::setw(6) << "Page" << " |";
     for (int i = 0; i < frames; ++i)
-        out << " " << std::setw(10) << ("F" + std::to_string(i + 1)) << "|";
-    out << " " << std::setw(25) << "Result" << "| " << "Next Victim\n";
+        out << std::setw(8) << ("  f" + std::to_string(i + 1)) << " |";
+    out << std::setw(24) << "        Result" << " | " << "Next Victim\n";
 
-    out << std::string(10 + 13 * frames + 30, '-') << "\n";
+    out << std::string(8 + 12 * frames + 30, '-') << "\n";
 
     std::vector<int> frame;
     int faults = 0;
@@ -67,27 +69,28 @@ int Optimal::simulate(std::ostream& out) {
         }
 
         // Print current page
-        out << std::left << std::setw(7) << p << "|";
+        out << std::setw(6) << p << " |";
 
         // Print frame contents
         for (int j = 0; j < frames; ++j) {
             if (j < (int)frame.size())
-                out << " " << std::setw(10) << frame[j] << "|";
+                out << std::setw(8) << frame[j] << " |";
             else
-                out << " " << std::setw(10) << "-" << "|";
+                out << std::setw(8) << "-" << " |";
         }
 
         // Print result
+        std::ostringstream result;
         if (hit) {
-            out << " " << std::setw(25) << "Hit" << "| ";
+            result << "Hit";
         } else {
-            std::ostringstream result;
             result << "Fault";
             if (evicted != -1)
                 result << ", evict " << evicted;
-            out << " " << std::setw(25) << result.str() << "| ";
         }
+        out << std::setw(24) << result.str() << " | ";
 
+        // Next victim
         if (nextVictim != -1)
             out << std::setw(10) << nextVictim;
         else

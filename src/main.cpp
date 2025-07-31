@@ -9,8 +9,10 @@
 #include "LFU.h"
 #include "Optimal.h"
 #include "Utils.h"
+#include "BeladyDetector.h" // ← Added for Belady’s Anomaly detection
 
-int main() {
+int main()
+{
     int frames;
     std::string line;
 
@@ -28,26 +30,34 @@ int main() {
     algos.emplace_back(new LFU(pages, frames));
     algos.emplace_back(new Optimal(pages, frames));
 
-    std::vector<std::pair<std::string,int>> results;
-    for (auto& algo : algos) {
-        std::cout << "===== " << algo->name() << " Simulation =====\n";
+    std::vector<std::pair<std::string, int>> results;
+    for (auto &algo : algos)
+    {
+        std::cout << "\n===== " << algo->name() << " Simulation =====\n";
         int faults = algo->simulate(std::cout);
         results.emplace_back(algo->name(), faults);
     }
 
     std::sort(results.begin(), results.end(),
-              [](auto& a, auto& b){ return a.second < b.second; });
+              [](auto &a, auto &b)
+              { return a.second < b.second; });
 
-    std::cout << "===== Final Comparison =====\n"
+    std::cout << "\n===== Final Comparison =====\n"
               << std::left << std::setw(12) << "Algorithm"
               << "| Faults\n"
               << "------------|--------\n";
-    for (auto& r : results) {
+    for (auto &r : results)
+    {
         std::cout << std::left << std::setw(12) << r.first
                   << "| " << r.second << "\n";
     }
     std::cout << "\nBest: " << results.front().first
               << "\n2nd Best: " << results[1].first << "\n";
+
+    // Belady’s Anomaly Detection Section
+    std::cout << "\n\n--- Running Belady’s Anomaly Check on FIFO (Frame sizes 3 to 6) ---\n";
+    BeladyDetector bd(pages);
+    bd.detect();
 
     return 0;
 }
